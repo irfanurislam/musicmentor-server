@@ -30,19 +30,9 @@ async function run() {
 
 
      const classesCollection = client.db('musicDB').collection('classes')
+     const cartCollection = client.db('musicDB').collection('carts')
    
-    // app.get('/coffee',async(req,res) =>{
-    //   const cursor = coffeeCollection.find()
-    //   const result = await cursor.toArray() 
-    //   res.send(result)
-    // })
-
-    // app.get('/coffee/:id', async(req, res) => {
-    //         const id = req.params.id;
-    //         const query = {_id: new ObjectId(id)}
-    //         const result = await coffeeCollection.findOne(query);
-    //         res.send(result);
-    //     })
+    
 
      app.get('/myclass',async(req,res) =>{  
       const cursor = classesCollection.find()
@@ -73,11 +63,6 @@ async function run() {
 
 
 
-
-
-
-
-
     app.post('/addclass',async(req,res) =>{
         const newClasses = req.body
         console.log(newClasses)
@@ -86,32 +71,16 @@ async function run() {
         
     })
 
-    // app.put('/coffee/:id', async(req,res) =>{
-    //   const id = req.params.id
-    //   const filter = {_id: new ObjectId(id)}
-    //   const options = {upsert: true}
-    //   const updatedCoffee = req.body;
-    //   const coffee = {
-    //     $set:{
-    //       name: updatedCoffee.name, 
-    //       quantity: updatedCoffee.quantity, 
-    //       supplier: updatedCoffee.supplier, 
-    //       taste: updatedCoffee.taste, 
-    //       category: updatedCoffee.category, 
-    //       details: updatedCoffee.details, 
-    //       photo: updatedCoffee.photo
-    //     }
-    //   }
-    //   const result = await coffeeCollection.updateOne(filter,coffee,options)
-    //   res.send(result)
-    // })
+    // my Booked Collections
 
-    // app.delete('/coffee/:id',async(req,res) =>{
-    //   const id = req.params.id
-    //   const query = {_id: new ObjectId(id)}
-    //   const result = await coffeeCollection.deleteOne(query)
-    //   res.send(result)
-    // })
+    app.post('/carts',async(req,res) =>{
+      const item = req.body
+      console.log(item)
+      const result = await cartCollection.insertOne(item)
+      res.send(result)
+
+    })
+  
 
 
 
