@@ -28,11 +28,38 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
-
+     
+     const userCollection = client.db('musicDB').collection('users')
      const classesCollection = client.db('musicDB').collection('classes')
      const cartCollection = client.db('musicDB').collection('carts')
    
     
+    //  users related api
+    app.get('/users', async (req, res) => {
+      const result = await userCollection.find().toArray();
+      res.send(result);
+    });
+
+
+    app.post('/users',async(req,res) =>{
+      const newUser = req.body 
+
+      const query = { email: newUser.email }
+      const alreadyUser = await userCollection.findOne(query);
+      console.log('alreadyuser',alreadyUser);
+
+      if (alreadyUser) {
+        return res.send({ message: 'user already exists' })
+      }
+
+      const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    })
+
+
+
+
+
 
      app.get('/myclass',async(req,res) =>{  
       const cursor = classesCollection.find()

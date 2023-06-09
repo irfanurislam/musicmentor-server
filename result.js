@@ -41,3 +41,56 @@
     //   const result = await coffeeCollection.deleteOne(query)
     //   res.send(result)
     // })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // login
+
+    
+        // const updateUser = (user, name, photo,gender,number,address) => {
+        //         updateProfile(user, {
+        //           displayName: name,
+        //           gender: gender,
+        //           number: number,
+        //           photoURL: photo,
+        //           address: address
+        //         })
+        //           .then(() => {
+        //             console.log("user name updated");
+        //             const saveUser = {name: name,number,gender,email: email, photo,address,}
+        //             console.log(saveUser)
+        //             fetch('http://localhost:5000/users',{
+        //               method: 'POST',
+        //               headers: {
+        //                 'content-type':'application/json'
+        //               },
+        //               body: JSON.stringify(saveUser)
+        //             })
+        //             .then(res => res.json())
+        //             .then(data => {
+        //               if(data.insertedId){
+        //                 alert('user succesfully')
+
+        //               }
+        //             })
+        //           })
+        //           .catch((error) => {
+        //             console.log(error.message);
+        //             setError(error.message)
+        //           });
+        //       };
+      
