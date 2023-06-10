@@ -3,6 +3,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors')
 const jwt = require('jsonwebtoken');
 require('dotenv').config()
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const app = express()
 
 const port = process.env.PORT || 5000
@@ -199,6 +200,15 @@ const verifyAdmin = async (req, res, next) => {
       res.send(result)
 
     })
+
+
+    app.get('/carts/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const result = await cartCollection.findOne(query);
+            res.send(result);
+        })
+
 
     app.delete('/carts/:id',async(req,res) =>{
       const id = req.params.id
