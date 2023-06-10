@@ -52,6 +52,7 @@ async function run() {
      const userCollection = client.db('musicDB').collection('users')
      const classesCollection = client.db('musicDB').collection('classes')
      const cartCollection = client.db('musicDB').collection('carts')
+     const paymentCollection = client.db('musicDB').collection('payments')
    
     
     //  jwt
@@ -216,6 +217,69 @@ const verifyAdmin = async (req, res, next) => {
       const result = await cartCollection.deleteOne(query)
       res.send(result)
     })
+
+// payment
+ // create payment intent
+ app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+  const { price } = req.body;
+  const amount = parseInt(price * 100);
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    payment_method_types: ['card']
+  });
+
+  res.send({
+    clientSecret: paymentIntent.client_secret
+  })
+});
+
+// payment related api
+// app.post('/payments', verifyJWT, async (req, res) => {
+//   const payment = req.body;
+//   const insertResult = await paymentCollection.insertOne(payment);
+
+//   const query = { _id: new ObjectId(payment.cartId) };
+//   const deleteResult = await cartCollection.deleteOne(query)
+
+//   res.send({ insertResult, deleteResult });
+// })
+
+// // todo neumeric issue seats te integer banabo
+app.post('/payments', verifyJWT, async (req, res) => {
+  const payment = req.body;
+  const insertResult = await paymentCollection.insertOne(payment);
+
+  const cartId = payment.cartId;
+  const cartQuery = { _id: new ObjectId(cartId) };
+  const cart = await cartCollection.findOne(cartQuery);
+ 
+  if (cart.seats === 0) {
+    // No available seats, return an error response
+    return res.status(400).json({ error: 'No available seats' });
+  }
+
+  const seatsToUpdate = cart.seats; // Convert string to number
+  if (isNaN(seatsToUpdate)) {
+    // Invalid seat value, return an error response
+    return res.status(400).json({ error: 'Invalid seat value' });
+  }
+
+  const classQuery = { _id: new ObjectId(payment.classId) };
+  const classUpdate = { $inc: { seats: -seatsToUpdate } };
+
+  const updateResult = await classesCollection.updateMany(classQuery, classUpdate);
+
+  if (updateResult.modifiedCount === 0) {
+    // Failed to update seats, return an error response
+    return res.status(400).json({ error: 'Failed to update seats' });
+  }
+
+  const deleteResult = await cartCollection.deleteOne(cartQuery);
+
+  res.json({ insertResult, deleteResult });
+});
+
 
 
 
