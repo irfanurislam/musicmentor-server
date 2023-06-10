@@ -74,7 +74,7 @@ const verifyAdmin = async (req, res, next) => {
 
 
     //  users related api
-    app.get('/users', async (req, res) => {
+    app.get('/users',verifyJWT,verifyAdmin, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
