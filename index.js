@@ -73,6 +73,16 @@ const verifyAdmin = async (req, res, next) => {
   }
   next();
 }
+// verify instructor 
+const verifyInstructor = async (req, res, next) => {
+  const email = req.decoded.email;
+  const query = { email: email }
+  const user = await userCollection.findOne(query);
+  if (user?.role !== 'instructor') {
+    return res.status(403).send({ error: true, message: 'forbidden message' });
+  }
+  next();
+}
 
 
     //  users related api
@@ -111,6 +121,22 @@ const verifyAdmin = async (req, res, next) => {
       res.send(result);
     })
 
+    // instructor
+    app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+
+      if (req.decoded.email !== email) {
+        res.send({ instructor: false })
+      }
+
+      const query = { email: email }
+      const user = await userCollection.findOne(query);
+      const result = { instructor: user?.role === 'instructor' }
+      res.send(result);
+    })
+
+
+
     app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
@@ -125,6 +151,24 @@ const verifyAdmin = async (req, res, next) => {
       res.send(result);
 
     })
+
+    // instructor
+    app.patch('/users/instructor/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: 'instructor'
+        },
+      };
+
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+
+    })
+
+
 
     app.delete('/users/:id',async(req,res) =>{
       const id = req.params.id
@@ -218,6 +262,9 @@ const verifyAdmin = async (req, res, next) => {
       res.send(result)
     })
 
+
+
+
 // payment
  // create payment intent
  app.post('/create-payment-intent', verifyJWT, async (req, res) => {
@@ -233,6 +280,9 @@ const verifyAdmin = async (req, res, next) => {
     clientSecret: paymentIntent.client_secret
   })
 });
+
+
+
 
 // payment related api
 // app.post('/payments', verifyJWT, async (req, res) => {
@@ -253,7 +303,7 @@ app.post('/payments', verifyJWT, async (req, res) => {
   const cartId = payment.cartId;
   const cartQuery = { _id: new ObjectId(cartId) };
   const cart = await cartCollection.findOne(cartQuery);
- 
+  const deleteResult = await cartCollection.deleteOne(cartQuery);
   if (cart.seats === 0) {
     // No available seats, return an error response
     return res.status(400).json({ error: 'No available seats' });
@@ -275,7 +325,7 @@ app.post('/payments', verifyJWT, async (req, res) => {
     return res.status(400).json({ error: 'Failed to update seats' });
   }
 
-  const deleteResult = await cartCollection.deleteOne(cartQuery);
+ 
 
   res.json({ insertResult, deleteResult });
 });
