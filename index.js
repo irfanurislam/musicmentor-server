@@ -107,6 +107,7 @@ const verifyInstructor = async (req, res, next) => {
       res.send(result);
     })
 
+
     // role admin // eivabe instructor korbo
     app.get('/users/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
@@ -193,7 +194,7 @@ const verifyInstructor = async (req, res, next) => {
 
     app.get('/myclass', async (req, res) => {
       try {
-        const email = req.query.instructorEmail;
+        const email = req.query.email;
       console.log(email)
        if(!email){
         res.send([])
@@ -281,6 +282,18 @@ const verifyInstructor = async (req, res, next) => {
   })
 });
 
+// payment 
+app.get('/payments',async(req,res) =>{
+  const email = req.query.email;
+  if(!email){
+    res.send([])
+  }
+  const query = {email:email}
+  const sortOptions = {date: -1}
+  const result = await paymentCollection.find(query).sort(sortOptions).toArray()
+  res.send(result)
+
+})
 
 
 
