@@ -230,7 +230,7 @@ const verifyInstructor = async (req, res, next) => {
 
     // admin manageclass
 
-    app.patch('/managealldclass/:id', async(req,res) =>{
+    app.patch('/manageallclass/:id', async(req,res) =>{
       const id = req.params.id
       const updated = req.body
       const filter = {_id: new ObjectId(id)}
