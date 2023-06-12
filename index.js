@@ -190,6 +190,12 @@ const verifyInstructor = async (req, res, next) => {
       const result = await cursor.toArray() 
       res.send(result)
     })
+     app.get('/myclass/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)}
+            const result = await classesCollection.findOne(query);
+            res.send(result);
+        })
 
 
     app.get('/myclass', async (req, res) => {
@@ -218,6 +224,43 @@ const verifyInstructor = async (req, res, next) => {
         const newClasses = req.body
         console.log(newClasses)
         const result = await classesCollection.insertOne(newClasses)
+        res.send(result)
+        
+    })
+
+    // admin manageclass
+
+    app.patch('/managealldclass/:id', async(req,res) =>{
+      const id = req.params.id
+      const updated = req.body
+      const filter = {_id: new ObjectId(id)}
+      const updateDoc = {
+        $set:{
+          status: updated.status
+        }
+      }
+      const result = await classesCollection.updateOne(filter,updateDoc)
+       res.send(result)
+    } )
+
+    app.put('/myclass/:id',async(req,res) =>{
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert: true}
+      const updatedCLass = req.body;
+      const classes = {
+        $set:{
+          className: updatedCLass.className, 
+          classImage: updatedCLass.classImage, 
+          name: updatedCLass.name, 
+          email: updatedCLass.email, 
+          seats: updatedCLass.seats, 
+          price: updatedCLass.price,
+          status: updatedCLass.status 
+         
+        }
+      }
+        const result = await classesCollection.updateOne(filter,classes,options)
         res.send(result)
         
     })
