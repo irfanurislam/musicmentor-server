@@ -86,7 +86,7 @@ const verifyInstructor = async (req, res, next) => {
 
 
     //  users related api
-    app.get('/users',verifyJWT,verifyAdmin, async (req, res) => {
+    app.get('/users',verifyJWT,verifyAdmin,verifyInstructor, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
@@ -109,7 +109,7 @@ const verifyInstructor = async (req, res, next) => {
 
 
     // role admin // eivabe instructor korbo
-    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+    app.get('/users/admin/:email', verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
@@ -123,7 +123,7 @@ const verifyInstructor = async (req, res, next) => {
     })
 
     // instructor
-    app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
+    app.get('/users/instructor/:email',verifyJWT, verifyAdmin, async (req, res) => {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
@@ -138,7 +138,7 @@ const verifyInstructor = async (req, res, next) => {
 
 
 
-    app.patch('/users/admin/:id', async (req, res) => {
+    app.patch('/users/admin/:id',verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const filter = { _id: new ObjectId(id) };
@@ -154,7 +154,7 @@ const verifyInstructor = async (req, res, next) => {
     })
 
     // instructor
-    app.patch('/users/instructor/:id', async (req, res) => {
+    app.patch('/users/instructor/:id',verifyJWT, verifyInstructor,async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const filter = { _id: new ObjectId(id) };
@@ -326,6 +326,15 @@ const verifyInstructor = async (req, res, next) => {
 });
 
 // payment 
+app.get('/payments', async (req, res) => {
+  const limit = 6; // Limit set to 6
+  const sortBy = { students: -1 }; // Sort in descending order based on the students field
+
+  const result = await paymentCollection.find().sort(sortBy).limit(limit).toArray();
+  res.send(result);
+});
+
+
 app.get('/payments',async(req,res) =>{
   const email = req.query.email;
   if(!email){
@@ -362,7 +371,7 @@ app.post('/payments', verifyJWT, async (req, res) => {
  const confirmDelete = {_id: new ObjectId(deleteId)}
  const updateDoc = {
   $set:{
-    availableseats: newpayment.availableseats,
+    seats: newpayment.seats,
     students: newpayment.students,
 
   },
