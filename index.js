@@ -353,37 +353,25 @@ app.get('/payments',async(req,res) =>{
 
 // // todo neumeric issue seats te integer banabo
 app.post('/payments', verifyJWT, async (req, res) => {
-  const payment = req.body;
-  const insertResult = await paymentCollection.insertOne(payment);
+ const newpayment = req.body
+ const id = req.body.classId;
+ console.log(id)
+ const filter = {_id: new ObjectId(id)}
+ console.log(filter)
+ const deleteId = newpayment.cartId;
+ const confirmDelete = {_id: new ObjectId(deleteId)}
+ const updateDoc = {
+  $set:{
+    availableseats: newpayment.availableseats,
+    students: newpayment.students,
 
-  const cartId = payment.cartId;
-  const cartQuery = { _id: new ObjectId(cartId) };
-  const cart = await cartCollection.findOne(cartQuery);
-  const deleteResult = await cartCollection.deleteOne(cartQuery);
-  if (cart.seats === 0) {
-    // No available seats, return an error response
-    return res.status(400).json({ error: 'No available seats' });
-  }
+  },
+ };
+ const newBookMark = await cartCollection.deleteOne(confirmDelete)
+ const query = await classesCollection.updateOne(filter, updateDoc)
+ const result = await paymentCollection.insertOne(newpayment);
+ res.send(result,query,newBookMark)
 
-  const seatsToUpdate = cart.seats; // Convert string to number
-  if (isNaN(seatsToUpdate)) {
-    // Invalid seat value, return an error response
-    return res.status(400).json({ error: 'Invalid seat value' });
-  }
-
-  const classQuery = { _id: new ObjectId(payment.classId) };
-  const classUpdate = { $inc: { seats: -seatsToUpdate } };
-
-  const updateResult = await classesCollection.updateMany(classQuery, classUpdate);
-
-  if (updateResult.modifiedCount === 0) {
-    // Failed to update seats, return an error response
-    return res.status(400).json({ error: 'Failed to update seats' });
-  }
-
- 
-
-  res.json({ insertResult, deleteResult });
 });
 
 
