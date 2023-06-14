@@ -339,3 +339,92 @@ console.log('shihab',userData?.role)
     </>
   )}
       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// /////////////////////////////////
+
+
+
+
+
+
+
+
+  {isAdmin && (
+    <>
+      <li>
+        <NavLink to="/dashboard/adminhome">
+          <FaHome></FaHome> Admin Home
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/manageuser">
+          <FaUserCog></FaUserCog> Manage User
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/manageclass">
+          <FaCog></FaCog> Manage Class
+        </NavLink>
+      </li>
+    </>
+  )}
+  
+  {isInstructor && (
+    <>
+     
+      <li>
+        <NavLink to="/dashboard/addclass">
+          <FaPlusCircle></FaPlusCircle> Add Class
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/myclass">
+          <FaPlusCircle></FaPlusCircle> My Class
+        </NavLink>
+      </li>
+    </>
+  )}
+  
+  {!isAdmin &&  !isInstructor && (
+    <>
+      <li>
+        <NavLink to="/dashboard/payment">
+          <FaCreditCard></FaCreditCard> Payment
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/myenrolled">
+          <FaCreditCard></FaCreditCard> myenrolled
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/paymenthistory">
+          <FaCreditCard></FaCreditCard> history
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/dashboard/mycart">
+          <FaShoppingCart></FaShoppingCart> My Cart
+        </NavLink>
+      </li>
+    </>
+  )}
+  
