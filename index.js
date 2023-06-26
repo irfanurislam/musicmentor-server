@@ -13,22 +13,22 @@ app.use(express.json())
 
 // verify jwt
 
-const verifyJWT = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  if (!authorization) {
-    return res.status(401).send({ error: true, message: 'unauthorized access' });
-  }
-  // bearer
-  const token = authorization.split(' ')[1];
+// const verifyJWT = (req, res, next) => {
+//   const authorization = req.headers.authorization;
+//   if (!authorization) {
+//     return res.status(401).send({ error: true, message: 'unauthorized access' });
+//   }
+//   // bearer
+//   const token = authorization.split(' ')[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({ error: true, message: 'unauthorized access' })
-    }
-    req.decoded = decoded;
-    next();
-  })
-}
+//   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+//     if (err) {
+//       return res.status(401).send({ error: true, message: 'unauthorized access' })
+//     }
+//     req.decoded = decoded;
+//     next();
+//   })
+// }
 
 console.log(process.env.DB_PASS)
 // const uri = "mongodb+srv://coffeeStore:zuTzHhwlyjH1I2t2@cluster0.psezczp.mongodb.net/?retryWrites=true&w=majority";
@@ -56,37 +56,37 @@ async function run() {
    
     
     //  jwt
-    app.post('/jwt', (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
+    // app.post('/jwt', (req, res) => {
+    //   const user = req.body;
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
 
-      res.send({ token })
-    })
+    //   res.send({ token })
+    // })
 
 // verify admin 
-const verifyAdmin = async (req, res, next) => {
-  const email = req.decoded.email;
-  const query = { email: email }
-  const user = await userCollection.findOne(query);
-  if (user?.role !== 'admin') {
-    return res.status(403).send({ error: true, message: 'forbidden message' });
-  }
-  next();
-}
+// const verifyAdmin = async (req, res, next) => {
+//   const email = req.decoded.email;
+//   const query = { email: email }
+//   const user = await userCollection.findOne(query);
+//   if (user?.role !== 'admin') {
+//     return res.status(403).send({ error: true, message: 'forbidden message' });
+//   }
+//   next();
+// }
 // verify instructor 
-const verifyInstructor = async (req, res, next) => {
-  const email = req.decoded.email;
-  const query = { email: email }
-  const user = await userCollection.findOne(query);
-  if (user?.role !== 'instructor') {
-    return res.status(403).send({ error: true, message: 'forbidden message' });
-  }
-  next();
-}
+// const verifyInstructor = async (req, res, next) => {
+//   const email = req.decoded.email;
+//   const query = { email: email }
+//   const user = await userCollection.findOne(query);
+//   if (user?.role !== 'instructor') {
+//     return res.status(403).send({ error: true, message: 'forbidden message' });
+//   }
+//   next();
+// }
 
 
     //  users related api
-    app.get('/users',verifyJWT,verifyAdmin, async (req, res) => {
+    app.get('/users', async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
     });
@@ -109,13 +109,9 @@ const verifyInstructor = async (req, res, next) => {
 
 
     // role admin // eivabe instructor korbo
-    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+    app.get('/users/admin/:email', async (req, res) => {
       const email = req.params.email;
-
-      if (req.decoded.email !== email) {
-        res.send({ admin: false })
-      }
-
+      
       const query = { email: email }
       const user = await userCollection.findOne(query);
       const result = { admin: user?.role === 'admin' }
@@ -126,10 +122,6 @@ const verifyInstructor = async (req, res, next) => {
     app.get('/users/instructor/:email', async (req, res) => {
       const email = req.params.email;
 
-      if (req.decoded.email !== email) {
-        res.send({ instructor: false })
-      }
-
       const query = { email: email }
       const user = await userCollection.findOne(query);
       const result = { instructor: user?.role === 'instructor' }
@@ -138,7 +130,7 @@ const verifyInstructor = async (req, res, next) => {
 
 
 
-    app.patch('/users/admin/:id',verifyJWT, async (req, res) => {
+    app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id;
       console.log(id);
       const filter = { _id: new ObjectId(id) };
@@ -183,7 +175,13 @@ const verifyInstructor = async (req, res, next) => {
 
 
 
+  app.get('/populerclass', async (req, res) => {
+  const limit = 6; // Limit set to 6
+  const sortBy = { students: -1 }; // Sort in descending order based on the students field
 
+  const result = await classesCollection.find().sort(sortBy).limit(limit).toArray();
+  res.send(result);
+});
 
      app.get('/myclass',async(req,res) =>{  
       const cursor = classesCollection.find()
@@ -267,15 +265,11 @@ const verifyInstructor = async (req, res, next) => {
 
     // my Booked Collections
 
-    app.get('/carts',verifyJWT, async(req,res) =>{
+    app.get('/carts', async(req,res) =>{
       const email = req.query.email
       if(!email){
         res.send([])
 
-      }
-      const decodedEmail = req.decoded.email;
-      if (email !== decodedEmail) {
-        return res.status(403).send({ error: true, message: 'porviden access' })
       }
       const query = {email:email}
       const result = await cartCollection.find(query).toArray()
@@ -311,7 +305,7 @@ const verifyInstructor = async (req, res, next) => {
 
 // payment
  // create payment intent
- app.post('/create-payment-intent', verifyJWT, async (req, res) => {
+ app.post('/create-payment-intent', async (req, res) => {
   const { price } = req.body;
   const amount = parseInt(price * 100);
   const paymentIntent = await stripe.paymentIntents.create({
@@ -361,7 +355,7 @@ app.get('/payments',async(req,res) =>{
 // })
 
 // // todo neumeric issue seats te integer banabo
-app.post('/payments', verifyJWT, async (req, res) => {
+app.post('/payments', async (req, res) => {
  const newpayment = req.body
  const id = req.body.classId;
  console.log(id)

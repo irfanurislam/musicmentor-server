@@ -1,243 +1,44 @@
-// import React from 'react';
-// todo--parsefloat=====
-// import React from 'react';
-// import { useLoaderData } from 'react-router-dom';
-// import PaymentFrom from './PaymentFrom';
-// import { loadStripe } from '@stripe/stripe-js';
-// import { Elements } from '@stripe/react-stripe-js';
 
-// const stripePromise = loadStripe(import.meta.env.VITE_Payment_PK);
-
-// const Payment = () => {
-//   const data = useLoaderData();
-//   const total = parseFloat(data.price).toFixed(2);
-//   const price = parseFloat(total);
-
-//   return (
-//     <div>
-//       <h2 className='text-center pb-5'>Money !!!</h2>
-//       <Elements stripe={stripePromise}>
-//         <PaymentFrom newPay={data} price={price}></PaymentFrom>
-//       </Elements>
-//     </div>
-//   );
-// };
-
-// export default Payment;
-
-// import { CardElement, useElements, useStripe } from "@stripe/react-stripe-js";
-// import React, { useContext, useEffect, useState } from "react";
-// import { AuthContext } from "../../../../Components/Provider/AuthProvider";
-// import useChart from "../../../../../Hooks/useChart";
-// import Swal from "sweetalert2";
-// import { useNavigate } from "react-router-dom";
-
-// const PaymentFrom = ({ price, newPay }) => {
-//   const navigate = useNavigate();
-//   const { Chart, refetch } = useChart();
-//   const [clientSecret, setClientSecret] = useState("");
-//   const [cardError, setCardError] = useState("");
-//   const { User } = useContext(AuthContext);
-//   const stripe = useStripe();
-//   const [process, setprocess] = useState(false);
-//   const elements = useElements();
-//   const [tranjectionID, settrandjection] = useState("");
-
-//   useEffect(() => {
-//     // Create PaymentIntent as soon as the page loads
-//     fetch("https://ass-12-server-mu.vercel.app/create-payment-intent", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({ price }),
-//     })
-//       .then((res) => res.json())
-//       .then((data) => setClientSecret(data.clientSecret));
-//   }, []);
-
-//   const handleSubmit = async (event) => {
-//     event.preventDefault();
-
-//     if (!stripe || !elements) {
-//       return;
-//     }
-
-//     const card = elements.getElement(CardElement);
-
-//     if (card == null) {
-//       return;
-//     }
-
-//     const { error, paymentMethod } = await stripe.createPaymentMethod({
-//       type: "card",
-//       card,
-//     });
-
-//     if (error) {
-//       console.log("[error]", error);
-//       setCardError(error.message);
-//     } else {
-//       // console.log('[PaymentMethod]', paymentMethod);
-//     }
-
-//     setprocess(true);
-//     const { paymentIntent, error: confirmError } =
-//       await stripe.confirmCardPayment(clientSecret, {
-//         payment_method: {
-//           card: card,
-//           billing_details: {
-//             name: User?.displaName || "unknown",
-//             email: User?.email || "No-Email",
-//           },
-//         },
-//       });
-//     if (confirmError) {
-//       setCardError(confirmError.message);
-//     }
-//     setprocess(false);
-//     if (paymentIntent.status === "succeeded") {
-//       settrandjection(paymentIntent.id);
-//       const tranjectId = paymentIntent.id;
-
-//       // Todo ==>> Agamikal eikhan theke kaj start korbo =====>>>>>>>Backend a data save delet and update student and enroll classes==========>>>>
-//       const {
-//         _id,
-
-//         Availableseats,
-
-//         className,
-
-//         instructorEmail,
-
-//         insName,
-
-//         price,
-
-//         students,
-//         oldId,
-//         classImage,
-
-//         userName,
-
-//         userEmail,
-//       } = newPay;
-
-//       const date = new Date();
-
-//       const newdata = {
-//         bookamekID: _id,
-//         Availableseats: Availableseats - 1,
-//         className,
-//         instructorEmail,
-//         insName,
-//         price,
-//         students: students + 1,
-//         classImage,
-//         userName,
-//         userEmail,
-//         tranjectId,
-//         oldId,
-//         date,
-//       };
-
-//       fetch("https://ass-12-server-mu.vercel.app/paymentcomplete", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(newdata),
-//       })
-//         .then((res) => res.json())
-//         .then((data) => {
-//           Swal.fire({
-//             position: "top-center",
-//             icon: "success",
-//             title: "Payment Succefully",
-//             showConfirmButton: false,
-//             timer: 1500,
-//           });
-//           navigate("/dashboard/bookmarkedclasses");
-//           refetch();
-//         });
-//     }
-//   };
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <CardElement
-//         options={{
-//           style: {
-//             base: {
-//               fontSize: "16px",
-//               color: "#424770",
-//               "::placeholder": {
-//                 color: "#aab7c4",
-//               },
-//             },
-//             invalid: {
-//               color: "#9e2146",
-//             },
-//           },
-//         }}
-//       />
-//       <button
-//         type="submit "
-//         className="btn btn-primary btn-sm "
-//         disabled={!stripe || !clientSecret || process}
-//       >
-//         Pay
-//       </button>
-//       {cardError && <p className="text-red-800 p-4  mr-5">{cardError}</p>}
-//       {tranjectionID && (
-//         <p className="text-green-600 p-4  mr-5">
-//           Trsnsection Compleate - {tranjectionID}
-//         </p>
-//       )}
-//     </form>
-//   );
-// };
-
-// export default PaymentFrom;
+import { useContext, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../Providers/AuthProviders';
 
 
 
+const useAxiosSecure = () => {
+  const { logOut } = useContext(AuthContext)
+  const navigate = useNavigate(); 
 
+  const axiosSecure = axios.create({
+    baseURL: 'http://localhost:5000', 
+  });
 
-// // app.post('/payments', verifyJWT, async (req, res) => {
-//   const payment = req.body;
-//   const insertResult = await paymentCollection.insertOne(payment);
-//   const cartId = payment.cartId;
-//   const cartQuery = { _id: new ObjectId(cartId) };
-//   const cart = await cartCollection.findOne(cartQuery);
-//   const deleteResult = await cartCollection.deleteOne(cartQuery);
-//   if (cart.seats === 0) {
-//     // No available seats, return an error response
-//     return res.status(400).json({ error: 'No available seats' });
-//   }
+  useEffect(() => {
+    axiosSecure.interceptors.request.use((config) => {
+      const token = localStorage.getItem('access-token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
 
-//   const seatsToUpdate = cart.seats; // Convert string to number
-//   if (isNaN(seatsToUpdate)) {
-//     // Invalid seat value, return an error response
-//     return res.status(400).json({ error: 'Invalid seat value' });
-//   }
-//   const classQuery = { _id: new ObjectId(payment.classId) };
-//   const classUpdate = { $inc: { seats: -seatsToUpdate } };
+    axiosSecure.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (error.response && (error.response.status === 401 || error.response.status === 403)) {
+          await logOut();
+          navigate('/login');
+        }
+        return Promise.reject(error);
+      }
+    );
+  }, [logOut, navigate, axiosSecure]);
 
-//   const updateResult = await classesCollection.updateMany(classQuery, classUpdate);
+  return [axiosSecure];
+};
 
-//   if (updateResult.modifiedCount === 0) {
-//     // Failed to update seats, return an error response
-//     return res.status(400).json({ error: 'Failed to update seats' });
-//   }
-
- 
-
-//   res.json({ insertResult, deleteResult });
-// });
-
-
-
-
-
-
-
-
+export default useAxiosSecure;
 
 
 
@@ -341,6 +142,221 @@ console.log('shihab',userData?.role)
       
 
 
+  // dashbpard
+
+  Tanvir Evan
+  import { useState, useEffect, useContext } from 'react';
+  import { Link, Outlet } from 'react-router-dom';
+  import {
+    AiFillStar,
+    AiFillCheckCircle,
+    AiOutlineUser,
+    AiOutlinePlus,
+  } from 'react-icons/ai';
+  import { BsFillGridFill, BsFillPeopleFill } from 'react-icons/bs';
+  import useUsers from '../../Hooks/useUsers';
+  import { AuthContext } from '../Components/Provider/AuthProvider';
+  
+  
+  
+  const Dashboard = () => {
+  
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { User } = useContext(AuthContext)
+    const { users } = useUsers();
+  
+    const activeUserEmail = User?.email
+    const findUser = users?.find(user => user?.email === activeUserEmail)
+    useEffect(() => {
+      const handleResize = () => {
+        setIsSidebarOpen(window.innerWidth >= 768);
+      };
+  
+      window.addEventListener('resize', handleResize);
+      handleResize();
+  
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
+    }, []);
+  
+    const toggleSidebar = () => {
+      setIsSidebarOpen(!isSidebarOpen);
+    };
+  
+    let dashboardTitle = '';
+    if (findUser?.role === 'admin') {
+      dashboardTitle = 'Admin Dashboard';
+    } else if (findUser?.role === 'instructor') {
+   
+      dashboardTitle = 'Instructor Dashboard';
+    } else {
+      dashboardTitle = 'User Dashboard';
+    }
+  
+    return (
+      <div className="flex min-h-screen">
+      
+        {isSidebarOpen && (
+          <aside className="bg-gradient-to-b from-purple-400 to-pink-400 text-white w-64 p-4">
+            <div className="text-3xl font-bold mb-8 ">{dashboardTitle}</div>
+            <ul className="space-y-4">
+           <li>
+           <Link
+                      to="/dashboard"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                     <BsFillGridFill className="mr-2" />
+                      <span>Dashboard Home</span>
+                    </Link>
+           </li>
+              {!findUser?.role && (
+                <>
+                  <li>
+                    <Link
+                      to="/dashboard/bookmarkedclasses"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <AiFillStar className="mr-2" />
+                      <span>Bookmarked Classes</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/dashboard/enrolledclasses"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <AiFillCheckCircle className="mr-2" />
+                      <span>Enrolled Classes</span>
+                    </Link>
+                  </li>
+                </>
+              )}
+  
+              {findUser?.role === "admin" && (
+                <>
+                  <li>
+                    <Link
+                      to="/dashboard/manageclasses"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <AiFillCheckCircle className="mr-2" />
+                      <span>Manage Classes</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/dashboard/menageuser"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <BsFillPeopleFill className="mr-2" />
+                      <span>Manage Users</span>
+                    </Link>
+                  </li>
+                </>
+              )}
+  
+           
+              {findUser?.role === "instructor" && (
+                <>
+                  <li>
+                    <Link
+                      to="/dashboard/addaclass"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <AiOutlinePlus className="mr-2" />
+                      <span>Add a Class</span>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/dashboard/ALlclassesIns"
+                      className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                    >
+                      <AiOutlineUser className="mr-2" />
+                      <span>My Classes</span>
+                    </Link>
+                  </li>
+                </>
+              )}
+  
+           
+              <div className="border-b border-purple-600 my-4" />
+              <li>
+                <Link
+                  to="/"
+                  className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                >
+                  <BsFillGridFill className="mr-2" />
+                  <span>Home</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/classes"
+                  className="hover:text-purple-200 transition-colors duration-300 flex items-center"
+                >
+                  <AiFillCheckCircle className="mr-2" />
+                  <span>Our Classes</span>
+                </Link>
+              </li>
+            </ul>
+          </aside>
+        )}
+  
+  
+        <main className="flex-1 bg-gray-100 p-4">
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl text-center  mb-8 font-bold">Welcome, {findUser?.name}!</h1>
+          </div>
+          <div className="overflow-auto">
+            <Outlet />
+          </div>
+        </main>
+  
+  
+        <div
+          className={`fixed top-4 right-4 md:hidden bg-purple-400 p-2 rounded-full text-white cursor-pointer transition-colors duration-300 ${isSidebarOpen ? 'hover:bg-purple-500' : 'hover:bg-purple-300'
+            }`}
+          onClick={toggleSidebar}
+        >
+          {isSidebarOpen ? (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              className="h-6 w-6"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          )}
+        </div>
+      </div>
+    );
+  };
+  
+  export default Dashboard;
 
 
 
